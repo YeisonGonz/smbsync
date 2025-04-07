@@ -16,11 +16,17 @@
 ## 📦 Requisitos previos
 
 1. Python **3.8 o superior** instalado.
-2. Instalar la biblioteca `smbprotocol`:
+2. Instalacion del programa:
 
    ```bash
-   pip install smbprotocol
+   source ./install_smb.sh
    ```
+
+   1. Tras instalar el programa deberas hacer una instalacion de los requisitos:
+   ```bash
+   smbsync install 
+   ```
+
 
 3. Un servidor Samba configurado con permisos adecuados.
 
