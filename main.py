@@ -2,6 +2,7 @@ import smbclient
 import shutil
 from src.utils import *
 import argparse
+from src.Configuration import Configuration
 
 def main():
     parser = argparse.ArgumentParser(
@@ -42,6 +43,7 @@ def main():
     add_user_parser.add_argument('--host', required=True, help='Ruta del host SMB (ej: \\\\192.168.1.50\\Carpeta)')
 
     args = parser.parse_args()
+    cf = Configuration()
 
     if not args.command:
         parser.print_help()
@@ -60,7 +62,9 @@ def main():
 
         user_info = user_info[0]
         conn = SambaConnection(user_info["name"], user_info["password"], user_info["host_connection"])
-        conn.upload_folder(get_currentshell_path(), f'\\{user_info["host_connection"]}\\smbSyncFolder')
+
+        remote_folder = f'\\{user_info["host_connection"]}\\{cf.config.DEFAULT_REMOTE_FOLDER}' # Use default folder for Samba Up
+        conn.upload_folder(get_currentshell_path(), remote_folder)
 
     if args.command == 'reinstall':
         from src.scripts.uninstall import uninstall
@@ -75,6 +79,7 @@ def main():
             Ejemplo: smbsync upload-file --file /ruta/local/archivo.txt --remote-folder \\servidor\recurso
             smbsync upload-file --file /home/yeisongonz/Work/PersonalProjects/smbSync/install_smb.sh --remote-folder //192.168.1.32/DellSmb/Documentos
         """
+
         from src.database.ORM import ORM
         from src.Samba import SambaConnection
         orm = ORM()
