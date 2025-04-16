@@ -13,10 +13,8 @@ def main():
 
     subparsers = parser.add_subparsers(dest='command', help='Comandos disponibles')
 
-    # Comando "sync"
     sync_parser = subparsers.add_parser('sync', help='Sincroniza con una carpeta SMB remota')
-    # sync_parser.add_argument('--target', required=True, help='Ruta remota SMB (ej: \\\\192.168.1.100\\Carpeta)')
-    # sync_parser.add_argument('--local', default='.', help='Ruta local a sincronizar')
+    sync_parser.add_argument('--file', required=False, help='Sube un archivo específico al recurso.')
 
     upload_file_parser = subparsers.add_parser('upload-file',
                                                help='Sube un archivo específico al recurso compartido SMB')
@@ -63,8 +61,13 @@ def main():
         user_info = user_info[0]
         conn = SambaConnection(user_info["name"], user_info["password"], user_info["host_connection"])
 
-        remote_folder = f'\\{user_info["host_connection"]}\\{cf.config.DEFAULT_REMOTE_FOLDER}' # Use default folder for Samba Up
-        conn.upload_folder(get_currentshell_path(), remote_folder)
+        remote_folder = f'\\{user_info["host_connection"]}\\{cf.config.DEFAULT_REMOTE_FOLDER}'
+
+        if args.file:
+            print(f"📄 Subiendo archivo específico: {args.file}")
+            conn.upload_file(args.file, remote_folder)
+        else:
+            conn.upload_folder(get_currentshell_path(), remote_folder)
 
     if args.command == 'reinstall':
         from src.scripts.uninstall import uninstall

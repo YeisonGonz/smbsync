@@ -67,19 +67,14 @@ class SambaConnection:
             raise ConnectionError(f"❌ Error al subir archivos: {e}") from e
 
     def upload_file(self, local_file: str, remote_folder: str):
-        """Sube un archivo específico al recurso compartido Samba.
-
-        Args:
-            local_file (str): Ruta del archivo local.
-            remote_folder (str): Ruta remota en el recurso compartido Samba.
-        """
+        """Sube un único archivo a una carpeta remota compartida por Samba."""
         try:
             smbclient.ClientConfig(username=self.username, password=self.password)
 
-            if not os.path.isfile(local_file):
-                raise FileNotFoundError(f"El archivo local '{local_file}' no existe o no es un archivo válido.")
+            if not os.path.exists(local_file):
+                raise FileNotFoundError(f"El archivo local '{local_file}' no existe.")
 
-            # Verifica si la carpeta remota existe, si no, la crea
+            # Asegura que la carpeta remota exista
             try:
                 smbclient.listdir(remote_folder)
                 print(f"📁 Carpeta remota encontrada: {remote_folder}")
@@ -90,8 +85,9 @@ class SambaConnection:
                 else:
                     raise ConnectionError(f"❌ Error al verificar la carpeta remota: {e}") from e
 
-            # Subir el archivo al recurso compartido remoto
-            remote_file_path = f"{remote_folder}/{os.path.basename(local_file)}"
+            file_name = os.path.basename(local_file)
+            remote_file_path = f"{remote_folder}/{file_name}"
+
             with open(local_file, "rb") as file:
                 with smbclient.open_file(remote_file_path, mode="wb") as remote_file:
                     shutil.copyfileobj(file, remote_file)
@@ -99,4 +95,4 @@ class SambaConnection:
 
             print("✅ Archivo subido correctamente.")
         except Exception as e:
-            raise ConnectionError(f"❌ Error al subir el archivo: {e}") from e
+            raise ConnectionError(f"❌ Error al subir archivo: {e}") from e
